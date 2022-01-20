@@ -92,13 +92,13 @@ of a way to consolidate data.
 
 ## Boiling time :
 
-.code tartiflette.recipy.hcl /boil "potatoes"/,/peel/
+.code tartiflette.recipy.hcl /boil "potatoes/,/peel/
 
 .code recipy.go /preparationActionsSchema/,/"boil"/
 
 ## Boiling time :
 
-.code tartiflette.recipy.hcl /boil "potatoes"/,/peel/
+.code tartiflette.recipy.hcl /boil "potatoes/,/peel/
 
 .code recipy.go /preparationActionsSchema/,/"boil"/
 
@@ -132,5 +132,13 @@ message(s) with a context.
 
 Here, stack.Rest will contain the two 'add' blocks.
 
-## Now, to list references in my 'add' block
+## Now, to list variable references in my 'add' block
+
+## 
+
+.code tartiflette.recipy.hcl /add/,/}/
+.code recipy.go /case "add/,/stackSpec\)/
+
+
+
 

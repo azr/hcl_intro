@@ -1,9 +1,9 @@
 
 
 slice "cheese" {
-} // It's totally the reblochon kind
+} // It's totally the reblochon kind 🧀
 
-boil "potatoes" {
+boil "potatoes 🥔 🥔 🥔" {
   during = "30min"
 } // no need to peel
 
