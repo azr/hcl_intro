@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -47,6 +48,14 @@ type Action struct {
 	What     string
 }
 
+func (a Action) String() string {
+	s := fmt.Sprintf("%s %s", a.Verb, a.What)
+	if a.Duration != "" {
+		s += fmt.Sprintf(" during %s", a.Duration)
+	}
+	return s
+}
+
 func retMain(src []byte, filename string) int {
 	file, diags := hclsyntax.ParseConfig(src, filename, hcl.Pos{Byte: 0, Line: 1, Column: 1})
 	if diags.HasErrors() {
@@ -62,6 +71,7 @@ func retMain(src []byte, filename string) int {
 		return writeDiags(files, diags)
 	}
 
+	var actions []Action
 	for _, block := range preparationContent.Blocks {
 		action := Action{
 			Verb: block.Type,
@@ -77,8 +87,7 @@ func retMain(src []byte, filename string) int {
 				return writeDiags(files, diags)
 			}
 		}
-
-		log.Printf("going to %v", action)
+		actions = append(actions, action)
 	}
 
 	stackContent, moreDiags := prepRest.Content(stackSchema)
@@ -88,6 +97,7 @@ func retMain(src []byte, filename string) int {
 	}
 
 	var stack struct {
+		What string
 		In   string   `hcl:"in,optional"`
 		Rest hcl.Body `hcl:",remain"`
 	}
@@ -99,18 +109,19 @@ func retMain(src []byte, filename string) int {
 			if diags.HasErrors() {
 				return writeDiags(files, diags)
 			}
+			stack.What = block.Labels[0]
 
 			break // there can only be one stack here and we don't enforce it
 		}
 	}
 
-	restContent, moreDiags := stack.Rest.Content(stackContentSchema)
+	nestedStackContent, moreDiags := stack.Rest.Content(stackContentSchema)
 	diags = append(diags, moreDiags...)
 	if diags.HasErrors() {
 		return writeDiags(files, diags)
 	}
 	stackAddsRequire := []string{}
-	for _, block := range restContent.Blocks {
+	for _, block := range nestedStackContent.Blocks {
 		switch block.Type {
 		case "add":
 			var stackSpec = &hcldec.ObjectSpec{
@@ -127,7 +138,13 @@ func retMain(src []byte, filename string) int {
 		}
 	}
 
-	// fmt.Printf("To prepare a %s", stackContent.)
+	fmt.Printf("To prepare a %s:\n\n", stack.What)
+	for _, action := range actions {
+		fmt.Printf("* %s\n", action)
+	}
+	fmt.Printf("\nThen stack in a %s\n\n", stack.In)
+
+	fmt.Println("Then... you have to figure it out")
 
 	return 0
 }
