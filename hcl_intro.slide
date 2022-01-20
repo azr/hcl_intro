@@ -1,0 +1,136 @@
+# Introduction to the HCL lib
+Or the HashiCorp configuration language (language)
+Tags: go, hcl, hcl2
+
+Adrien Delorme
+January 2022
+adrien@hashicorp.com
+
+## Some disclaimers
+* HCL is currently at version 2.
+* I am not a maintainer for [hashicorp/hcl](https://github.com/hashicorp/hcl).
+* I (along with my team) only defined and implemented the Packer Configuration
+  Language.
+
+## I learned HCL along the way.
+
+By looking at other Projects like Terraform or Nomad. 
+
+I don't recommend doing that.
+
+And I really hope this presentation can help you get started.
+
+## HCL is not a data structure serialization language
+
+like JSON or YAML
+
+## HCL allows to define configuration languages for tools
+
+So it is better to say :
+* The Terraform Configuration language
+* The Nomad Configuration language
+* The Packer Configuration language
+* etc.
+
+Applications intending to use HCL should think of it as a language design task
+in its own.
+
+I'm going to show how to do this.
+
+## A little bit of vocabulary first
+
+HCL is made of blocks and arguments.
+
+.code block.example.hcl
+
+## HCL's super powers :
+
+* Partial reads.
+* Variables.
+
+
+## Let's define the Cooking configuration language
+
+I want to be able to:
+
+* `slice` ingredients
+* `boil` ingredients.
+
+And then maybe, stash them together.
+
+## Slicing time:
+
+.code tartiflette.recipy.hcl /\A/,/kind/
+
+## Slicing time:
+
+.code tartiflette.recipy.hcl /\A/,/kind/
+.code recipy.go /preparationActionsSchema/,/"slice"/
+
+BodySchema tells what blocks can be present in a body
+
+## Slicing time:
+
+.code tartiflette.recipy.hcl /\A/,/kind/
+.code recipy.go /preparationActionsSchema/,/"slice"/
+.code recipy.go /preparationContent,/
+
+! PartialContent return us 'just what we want'. The rest is in 'rest'. There is
+a `Content` function that expects no surprises.
+
+! If you want your tool to parse more than one file, you will have to think
+of a way to consolidate data.
+
+## Slicing time:
+
+.code tartiflette.recipy.hcl /\A/,/kind/
+.code recipy.go /preparationActionsSchema/,/"slice"/
+.code recipy.go /preparationContent,/
+.code recipy.go /range preparationContent.Blocks/,/this is empty/
+
+## Nice, we can parse "slice". Now to boil.
+
+## Boiling time :
+
+.code tartiflette.recipy.hcl /boil "potatoes"/,/peel/
+
+.code recipy.go /preparationActionsSchema/,/"boil"/
+
+## Boiling time :
+
+.code tartiflette.recipy.hcl /boil "potatoes"/,/peel/
+
+.code recipy.go /preparationActionsSchema/,/"boil"/
+
+.code recipy.go /type Action struct/,/"during"/
+
+## Boiling time :
+
+.code recipy.go /case "boil"/,/gohcl.DecodeBody/
+.code recipy.go /type Action struct/,/"during"/
+
+Because the Action struct has a specific HCL tag, gohcl will
+load the string duration in it.
+
+! In a real world application, it would be better to first parse the maximum HCL
+that we can. Then decode, this way, we can return the maximum potentially found
+errors in one run.
+
+Diagnostics, the second return type of almost all HCL calls is a slice of
+message(s) with a context.
+
+## Okay, now we need a way to stack these
+
+## Stacking stuff :
+
+.code tartiflette.recipy.hcl /stack/,/onions/
+
+## Stacking stuff :
+
+.code recipy.go /var stack struct {/,/}/
+.code recipy.go /gohcl.DecodeBody\(stackBody/
+
+Here, stack.Rest will contain the two 'add' blocks.
+
+## Now, to list references in my 'add' block
+
