@@ -1,14 +1,15 @@
-# Introduction to the HCL lib
+# Introduction to the HCL library
 Or the HashiCorp configuration language (language)
 Tags: go, hcl, hcl2
 
 Adrien Delorme
 January 2022
 adrien@hashicorp.com
+https://github.com/azr/hcll_intro
 
 ## Some disclaimers
-* HCL is currently at version 2.
-* I am not a maintainer for [hashicorp/hcl](https://github.com/hashicorp/hcl).
+* HCL is currently at version 2 and stable.
+* I am not a maintainer for [hashicorp/hcl](https://github.com/hashicorp/hcl), just a repo watcher.
 * I (along with my team) only defined and implemented the Packer Configuration
   Language.
 
@@ -22,7 +23,7 @@ And I really hope this presentation can help you get started.
 
 ## HCL is not a data structure serialization language
 
-like JSON or YAML
+Like JSON or YAML
 
 ## HCL allows to define configuration languages for tools
 
@@ -39,49 +40,64 @@ I'm going to show how to do this.
 
 ## A little bit of vocabulary first
 
-HCL is made of blocks and arguments.
+HCL is made of blocks :
 
 .code block.example.hcl
 
+And arguments :
+
+.code arguments.example.hcl
+
+The top body is a body.
+
 ## HCL's super powers :
 
-* Partial reads.
-* Variables.
+* Partial reads
+* Variables
+* Functions
 
 
-## Let's define the Cooking configuration language
+## Let's define Recipy: the Cooking configuration language
 
-I want to be able to:
+It displays recipes nicely.
+
+I want to be able describe how to:
 
 * `slice` ingredients
 * `boil` ingredients.
 
 And then maybe, stash them together.
 
-## Slicing time:
+## To open an hcl file
+
+.code recipy.go /file, diags/
+
+## Slicing:
 
 .code tartiflette.recipy.hcl /\A/,/kind/
 
-## Slicing time:
+This is going to create a sliced_cheese variable.
+
+## Slicing:
 
 .code tartiflette.recipy.hcl /\A/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
 
 BodySchema tells what blocks can be present in a body
 
-## Slicing time:
+## Slicing:
 
 .code tartiflette.recipy.hcl /\A/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
 .code recipy.go /preparationContent,/
 
-! PartialContent return us 'just what we want'. The rest is in 'rest'. There is
+! PartialContent return us 'just what we want'. The rest is in 'prepRest'. There is
 a `Content` function that expects no surprises.
 
 ! If you want your tool to parse more than one file, you will have to think
 of a way to consolidate data.
 
-## Slicing time:
+## Slicing:
 
 .code tartiflette.recipy.hcl /\A/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
@@ -90,36 +106,40 @@ of a way to consolidate data.
 
 ## Nice, we can parse "slice". Now to boil.
 
-## Boiling time :
+## Boiling:
+
+.code tartiflette.recipy.hcl /boil "potatoes/,/peel/
+
+This is going to create a boiled_potatoes variable.
+
+## Boiling:
 
 .code tartiflette.recipy.hcl /boil "potatoes/,/peel/
 
 .code recipy.go /preparationActionsSchema/,/"boil"/
 
-## Boiling time :
+## Boiling:
 
 .code tartiflette.recipy.hcl /boil "potatoes/,/peel/
 
 .code recipy.go /preparationActionsSchema/,/"boil"/
 
-.code recipy.go /type Action struct/,/"during"/
+.code recipy.go /type Action struct/,/"duration"/
 
-## Boiling time :
+## Boiling:
 
-.code recipy.go /case "boil"/,/gohcl.DecodeBody/
-.code recipy.go /type Action struct/,/"during"/
+.code recipy.go /range/
+.code recipy.go /switch/,/gohcl.DecodeBody/
+.code recipy.go /type Action struct/,/"duration"/
 
-Because the Action struct has a specific HCL tag, gohcl will
-load the string duration in it.
+Here: 
+* **`duration`** will be loaded into the duration field because of the struct tag.
+* **diags** — returned by almost all HCL calls — is a slice of diagnostics with
+a context, they could be warnings or errors (ex: "file.go:L32 something is not
+right")
+* **`gohcl`** deduces HCL schemas using hcl tags.
 
-! In a real world application, it would be better to first parse the maximum HCL
-that we can. Then decode, this way, we can return the maximum potentially found
-errors in one run.
-
-Diagnostics, the second return type of almost all HCL calls is a slice of
-message(s) with a context.
-
-## Okay, now we need a way to stack these
+## Okay, now we need a way to stack these ingredients
 
 ## Stacking stuff :
 
@@ -127,18 +147,48 @@ message(s) with a context.
 
 ## Stacking stuff :
 
+.code tartiflette.recipy.hcl /stack/,/add/
 .code recipy.go /var stack struct {/,/}/
 .code recipy.go /gohcl.DecodeBody\(stackBody/
 
-Here, stack.Rest will contain the two 'add' blocks.
+Here, we partially decode our stack block, and put everything unexpected in
+stack.Rest.
+
+## Defining a schema for 'add'
+
+.code tartiflette.recipy.hcl /add/,/}/
+.code recipy.go /case "add/,/}\n/
+
+* Schemas allow to define the layout of an object more explicitly.
+* These can be sent over the network.
+* All of these hcldec types define the hcldec.Spec interface
+
+
+## Now, let's find variable references in my 'add' blocks
+
+## Who uses schema VS gohcl :
+
+* Terraform uses its own **`helper/schema`** to wrap hclspec types.
+
+* **gohcl** :
+  * hcl v1 effectively used by Vault and Consul
+  * hcl v2 by Waypoint and Nomad 1.0+
+
+* **hcldec.Spec** is used by Packer and all plugins
+
+* Nomad's **hclspec.Spec** is used by all Nomad plugins
+  * hclspec is basically defining **over GRPC *hcldec.Spec* types**
+  
+* You can find them here:
+  * github.com/hashicorp/hcl/v2/gohcl
+  * github.com/hashicorp/hcl/v2/hcldec
+  * github.com/hashicorp/nomad/plugins/shared/hclspec#Spec
+
 
 ## Now, to list variable references in my 'add' block
 
-## 
+## Pro tips
 
-.code tartiflette.recipy.hcl /add/,/}/
-.code recipy.go /case "add/,/stackSpec\)/
-
-
-
-
+* It is better to decouple parsing or decoding from execution, just like in a
+compiler.
+* 

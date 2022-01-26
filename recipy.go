@@ -43,7 +43,7 @@ var stackSchema = &hcl.BodySchema{
 }
 
 type Action struct {
-	Duration string `hcl:"during"`
+	Duration string `hcl:"duration"`
 	Verb     string
 	What     string
 }

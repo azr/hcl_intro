@@ -3,8 +3,8 @@
 slice "cheese" {
 } // It's totally the reblochon kind 🧀
 
-boil "potatoes 🥔 🥔 🥔" {
-  during = "30min"
+boil "potatoes" { // 🥔 🥔 🥔
+  duration = "30min"
 } // no need to peel
 
 stack "tartiflette" {
