@@ -9,7 +9,6 @@ https://github.com/azr/hcll_intro
 
 ## Some disclaimers
 * HCL is currently at version 2 and stable.
-* I am not a maintainer for [hashicorp/hcl](https://github.com/hashicorp/hcl), just a repo watcher.
 * I (along with my team) only defined and implemented the Packer Configuration
   Language.
 
