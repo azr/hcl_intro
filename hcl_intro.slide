@@ -183,10 +183,6 @@ Now let's learn how to use variables and function.
 .code recipy.go /var durationEvalCtx/,/}$/
 .code recipy.go /durationEvalCtx,/
 
-## Let's run it !
-
-.play recipy.go /main\(/,/ReadFile/
-
 ## gohcl from hcl/v2 seems to be the most imported
 
 .image who_uses_what.png

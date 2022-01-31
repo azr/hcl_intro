@@ -167,8 +167,10 @@ func retMain(bytes []byte, filename string) int {
 	}
 
 	fmt.Printf("To prepare a %s:\n\n", stack.What)
-	for _, action := range actions {
-		fmt.Printf("* %s\n", action)
+	for i := range stackAddsRequire {
+		action := actions[i]
+		require := stackAddsRequire[i]
+		fmt.Printf("* %s (%v)\n", action, require)
 	}
 	fmt.Printf("\nThen stack in a %s\n\n", stack.In)
 
