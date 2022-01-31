@@ -4,7 +4,7 @@ slice "cheese" {
 } // It's totally the reblochon kind 🧀
 
 boil "potatoes" { // 🥔 🥔 🥔
-  duration = "30min"
+  duration = minutes(30)
 } // no need to peel
 
 stack "tartiflette" {

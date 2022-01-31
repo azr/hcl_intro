@@ -37,26 +37,40 @@ in its own.
 
 I'm going to show how to do this.
 
-## A little bit of vocabulary first
+## First some basics
 
-HCL is made of blocks :
+## Some vocabulary
+
+HCL files are made of :
+
+ * bodies :
+
+.code body.example.hcl
+
+ * blocks :
 
 .code block.example.hcl
 
-And arguments :
+ * arguments :
 
 .code arguments.example.hcl
 
-The top body is a body.
+## Example file
+
+.code complex.example.hcl
+
+## 
+
+.background parse.png
 
 ## HCL's super powers :
 
-* Partial reads
+* Partial reads (get block a)
 * Variables
 * Functions
 
 
-## Let's define Recipy: the Cooking configuration language
+## Defining the Cooking configuration Language
 
 It displays recipes nicely.
 
@@ -64,12 +78,9 @@ I want to be able describe how to:
 
 * `slice` ingredients
 * `boil` ingredients.
+* stash ingredients together.
 
-And then maybe, stash them together.
-
-## To open an hcl file
-
-.code recipy.go /file, diags/
+And then maybe print the recipe.
 
 ## Slicing:
 
@@ -90,11 +101,8 @@ BodySchema tells what blocks can be present in a body
 .code recipy.go /preparationActionsSchema/,/"slice"/
 .code recipy.go /preparationContent,/
 
-! PartialContent return us 'just what we want'. The rest is in 'prepRest'. There is
-a `Content` function that expects no surprises.
-
-! If you want your tool to parse more than one file, you will have to think
-of a way to consolidate data.
+* PartialContent return us 'just what we want' from our schema.
+* The rest of the AST is in 'prepRest'.
 
 ## Slicing:
 
@@ -162,26 +170,30 @@ stack.Rest.
 * These can be sent over the network.
 * All of these hcldec types define the hcldec.Spec interface
 
+## Now, we know:
+
+* how to open an HCL file
+* how to extract a block or a variable from a body
+
+Now let's learn how to use variables and function.
+
+## EvalContext allows to define variables and functions.
+
+.code tartiflette.recipy.hcl /minutes/
+.code recipy.go /var durationEvalCtx/,/}$/
+.code recipy.go /durationEvalCtx,/
+
+## Let's run it !
+
+.play recipy.go /main\(/,/ReadFile/
+
+## gohcl from hcl/v2 seems to be the most imported
+
+.image who_uses_what.png
+
+`*` Nomad's old versions uses hcl v1
 
 ## Now, let's find variable references in my 'add' blocks
-
-## Who uses schema VS gohcl :
-
-* Terraform uses its own **`helper/schema`** to wrap hclspec types.
-
-* **gohcl** :
-  * hcl v1 effectively used by Vault and Consul
-  * hcl v2 by Waypoint and Nomad 1.0+
-
-* **hcldec.Spec** is used by Packer and all plugins
-
-* Nomad's **hclspec.Spec** is used by all Nomad plugins
-  * hclspec is basically defining **over GRPC *hcldec.Spec* types**
-  
-* You can find them here:
-  * github.com/hashicorp/hcl/v2/gohcl
-  * github.com/hashicorp/hcl/v2/hcldec
-  * github.com/hashicorp/nomad/plugins/shared/hclspec#Spec
 
 
 ## Now, to list variable references in my 'add' block

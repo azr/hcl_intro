@@ -6,12 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 )
 
 func main() {
@@ -56,8 +58,34 @@ func (a Action) String() string {
 	return s
 }
 
-func retMain(src []byte, filename string) int {
-	file, diags := hclsyntax.ParseConfig(src, filename, hcl.Pos{Byte: 0, Line: 1, Column: 1})
+var HCLMinutesFunc = function.New(&function.Spec{
+	Params: []function.Parameter{
+		{
+			Name:         "minutes",
+			Type:         cty.Number,
+			AllowNull:    false,
+			AllowUnknown: false,
+		},
+	},
+	Type: function.StaticReturnType(cty.String),
+	Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+		minutes, _ := args[0].AsBigFloat().Int64()
+		d := time.Duration(minutes) * time.Minute
+		return cty.StringVal(d.String()), nil
+	},
+})
+
+var durationEvalCtx = &hcl.EvalContext{
+	Functions: map[string]function.Function{
+		"minutes": HCLMinutesFunc,
+	},
+	Variables: map[string]cty.Value{
+		"my_var": cty.StringVal("my_val"),
+	},
+}
+
+func retMain(bytes []byte, filename string) int {
+	file, diags := hclsyntax.ParseConfig(bytes, filename, hcl.Pos{Byte: 0, Line: 1, Column: 1})
 	if diags.HasErrors() {
 		log.Printf("%v", diags)
 		return 1
@@ -82,7 +110,7 @@ func retMain(src []byte, filename string) int {
 			// nothing to do here since this is empty
 		case "boil":
 			boilBody := block.Body
-			diags := gohcl.DecodeBody(boilBody, nil, &action)
+			diags := gohcl.DecodeBody(boilBody, durationEvalCtx, &action)
 			if diags.HasErrors() {
 				return writeDiags(files, diags)
 			}
