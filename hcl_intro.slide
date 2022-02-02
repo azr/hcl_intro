@@ -160,16 +160,21 @@ right")
 
 ## Stacking stuff :
 
-.code tartiflette.recipy.hcl /stack/,/add/
+.code tartiflette.recipy.hcl /stack/,/in/
 .code recipy.go /var stack struct {/,/}/
 .code recipy.go /gohcl.DecodeBody\(stackBody/
 
 Here, we partially decode our stack block, and put everything unexpected in
 stack.Rest.
 
-## Defining a schema for 'add'
+## 'add'
 
 .code tartiflette.recipy.hcl /add/,/}/
+.code recipy.go /nestedStackContent/
+.code recipy.go /nestedStackContent\.Blocks/
+
+## 'add' schema
+
 .code recipy.go /case "add/,/}\n/
 .code recipy.go /hcldec.Decode/
 
@@ -180,7 +185,7 @@ stack.Rest.
 ## Now, we know:
 
 * how to open an HCL file
-* how to extract a block or a variable from a body
+* how to extract blocks and attributes from a body
 
 Now let's learn how to use variables and function.
 
