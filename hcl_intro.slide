@@ -190,12 +190,6 @@ Now let's learn how to use variables and function.
 .code recipy.go /var durationEvalCtx/,/}$/
 .code recipy.go /durationEvalCtx,/
 
-## gohcl from hcl/v2 seems to be the most imported
-
-.image who_uses_what.png
-
-`*` Nomad's old versions uses hcl v1
-
 ## To list variable references of a block
 
 .code tartiflette.recipy.hcl /add/,/}/
@@ -210,3 +204,8 @@ Now let's learn how to use variables and function.
 * Write mock HCL early to get a feeling.
 * Decouple decoding from validation from execution.
 * Define wether you will need a tree early. 
+* gohcl from hcl/v2 seems to be the most imported
+
+.image who_uses_what.png
+
+`*` Nomad's old versions uses hcl v1
