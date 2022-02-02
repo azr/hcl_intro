@@ -14,6 +14,8 @@ And open that link.
 
 If go is complaining, you might have to run present with `GO111MODULE=off` set.
 
+The presentation.pdf file will work just fine !
+
 ## To run the example
 
 ```
