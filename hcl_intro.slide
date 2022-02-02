@@ -63,6 +63,12 @@ HCL files are made of :
 
 .background parse.png
 
+## One way to parse an HCL file
+
+.code recipy.go /ParseConfig/
+
+* diagnostics can contain contextual warning or errors
+
 ## HCL's super powers :
 
 * Partial reads (get block a)
