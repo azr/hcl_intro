@@ -200,6 +200,6 @@ Now let's learn how to use variables and function.
 
 ## Pro tips
 
-* It is better to decouple decoding from validation from execution, just like in
-a compiler.
-* In my experience it was always better to write mock HCL to get a feeling.
+* Write mock HCL early to get a feeling.
+* Decouple decoding from validation from execution.
+* Define wether you will need a tree early. 
