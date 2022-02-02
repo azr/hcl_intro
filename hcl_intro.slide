@@ -9,6 +9,7 @@ https://github.com/azr/hcll_intro
 
 ## Some disclaimers
 * HCL is currently at version 2 and stable.
+* I did not create HCL and I only slightly contribute to HCL.
 * I made Packer transition to HCL.
 
 ## I learned HCL along the way.
