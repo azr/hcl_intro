@@ -9,8 +9,7 @@ https://github.com/azr/hcll_intro
 
 ## Some disclaimers
 * HCL is currently at version 2 and stable.
-* I (along with my team) only defined and implemented the Packer Configuration
-  Language.
+* I made Packer transition to HCL.
 
 ## I learned HCL along the way.
 
