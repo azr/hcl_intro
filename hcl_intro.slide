@@ -165,6 +165,7 @@ stack.Rest.
 
 .code tartiflette.recipy.hcl /add/,/}/
 .code recipy.go /case "add/,/}\n/
+.code recipy.go /hcldec.Decode/
 
 * Schemas allow to define the layout of an object more explicitly.
 * These can be sent over the network.
@@ -189,13 +190,17 @@ Now let's learn how to use variables and function.
 
 `*` Nomad's old versions uses hcl v1
 
-## Now, let's find variable references in my 'add' blocks
+## To list variable references of a block
 
+.code tartiflette.recipy.hcl /add/,/}/
 
-## Now, to list variable references in my 'add' block
+## To list variable references of a block
+
+.code tartiflette.recipy.hcl /add/,/}/
+.code recipy.go /required by/,/}/
 
 ## Pro tips
 
-* It is better to decouple parsing or decoding from execution, just like in a
-compiler.
-* 
+* It is better to decouple decoding from validation from execution, just like in
+a compiler.
+* In my experience it was always better to write mock HCL to get a feeling.
