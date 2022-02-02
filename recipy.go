@@ -157,6 +157,10 @@ func retMain(bytes []byte, filename string) int {
 				"quantity": &hcldec.AttrSpec{Name: "quantity", Type: cty.String},
 			}
 
+			v, diags := hcldec.Decode(block.Body, stackSpec, nil)
+			_ = v
+			_ = diags
+
 			// tell what is required by this block :
 			traversals := hcldec.Variables(block.Body, stackSpec)
 			for _, traversal := range traversals {
