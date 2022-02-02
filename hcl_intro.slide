@@ -5,7 +5,7 @@ Tags: go, hcl, hcl2
 Adrien Delorme
 January 2022
 adrien@hashicorp.com
-https://github.com/azr/hcll_intro
+https://github.com/azr/hcl_intro
 
 ## Some disclaimers
 * HCL is currently at version 2 and stable.
