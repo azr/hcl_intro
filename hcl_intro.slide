@@ -3,14 +3,17 @@ Or the HashiCorp configuration language (language)
 Tags: go, hcl, hcl2
 
 Adrien Delorme
-January 2022
+February 2022
 adrien@hashicorp.com
 https://github.com/azr/hcl_intro
 
 ## Some disclaimers
+
 * HCL is currently at version 2 and stable.
 * I did not create HCL and I only slightly contribute to HCL.
 * I made Packer transition to HCL.
+
+.image scale.png 300 _ 
 
 ## I learned HCL along the way.
 
@@ -63,11 +66,15 @@ HCL files are made of :
 
 .background parse.png
 
+##
+
+.image sequence_diagram.png _ 550
+
 ## One way to parse an HCL file
 
 .code recipy.go /ParseConfig/
 
-* diagnostics can contain contextual warning or errors
+* diagnostics can contain contextual warnings or errors
 
 ## HCL's super powers :
 
@@ -75,10 +82,13 @@ HCL files are made of :
 * Variables
 * Functions
 
+## Defining the Cooking configuration Language
 
 ## Defining the Cooking configuration Language
 
 It displays recipes nicely.
+
+It has 'required version' controls.
 
 I want to be able describe how to:
 
@@ -88,31 +98,58 @@ I want to be able describe how to:
 
 And then maybe print the recipe.
 
+## Getting the required recipy version :
+
+.code tartiflette.recipy.hcl /recipy_version/
+
+## Getting the required recipy version :
+
+.code tartiflette.recipy.hcl /recipy_version/
+.code recipy.go /recipyVersionSchema/,/}/
+
+This Schema tells what attributes can be present in our body.
+
+## Getting the required recipy version :
+
+.code tartiflette.recipy.hcl /recipy_version/
+.code recipy.go /recipyVersionSchema/,/}/
+.code recipy.go /versionContent/,/}/
+
+* PartialContent returns a content type that will contain only our attribute.
+* rest will contain all remaining blocks yet to decode.
+
+## Getting the required recipy version :
+
+.code tartiflette.recipy.hcl /recipy_version/
+.code recipy.go /recipyVersionSchema/,/}/
+.code recipy.go /versionContent/,/}/
+.code recipy.go /versionContent.Attributes/,/AsString/
+
 ## Slicing:
 
-.code tartiflette.recipy.hcl /\A/,/kind/
+.code tartiflette.recipy.hcl /slice/,/kind/
 
 This is going to create a sliced_cheese variable.
 
 ## Slicing:
 
-.code tartiflette.recipy.hcl /\A/,/kind/
+.code tartiflette.recipy.hcl /slice/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
 
 BodySchema tells what blocks can be present in a body
 
 ## Slicing:
 
-.code tartiflette.recipy.hcl /\A/,/kind/
+.code tartiflette.recipy.hcl /slice/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
 .code recipy.go /preparationContent,/
 
-* PartialContent return us 'just what we want' from our schema.
+* PartialContent gets the blocks from our schema.
 * The rest of the AST is in 'prepRest'.
 
 ## Slicing:
 
-.code tartiflette.recipy.hcl /\A/,/kind/
+.code tartiflette.recipy.hcl /slice/,/kind/
 .code recipy.go /preparationActionsSchema/,/"slice"/
 .code recipy.go /preparationContent,/
 .code recipy.go /range preparationContent.Blocks/,/this is empty/
@@ -147,7 +184,6 @@ This is going to create a boiled_potatoes variable.
 
 Here: 
 * **`duration`** will be loaded into the duration field because of the struct tag.
-* **diags** — returned by almost all HCL calls — is a slice of diagnostics with
 a context, they could be warnings or errors (ex: "file.go:L32 something is not
 right")
 * **`gohcl`** deduces HCL schemas using hcl tags.
@@ -164,7 +200,7 @@ right")
 .code recipy.go /var stack struct {/,/}/
 .code recipy.go /gohcl.DecodeBody\(stackBody/
 
-Here, we partially decode our stack block, and put everything unexpected in
+Here, we partially decode our stack block, and put all other blocks in
 stack.Rest.
 
 ## 'add'
@@ -202,11 +238,27 @@ Now let's learn how to use variables and function.
 ## To list variable references of a block
 
 .code tartiflette.recipy.hcl /add/,/}/
-.code recipy.go /required by/,/}/
+.code recipy.go /required by/,/split.RootName/
+
+## Ouput:
+
+```
+$ ./recipy
+
+expecting recipy version >= 1.0.0
+
+To prepare a tartiflette:
+* slice cheese
+* boil potatoes during 30m0s 
+
+Then stack in a cast iron pan
+
+tartiflette requires: [boiled_potatoes sliced_cheese]
+```
 
 ## Pro tips
 
-* Write mock HCL early to get a feeling.
+* Write HCL mockups early to get a feeling.
 * Decouple decoding from validation from execution.
 * Define wether you will need a tree early. 
 * gohcl from hcl/v2 seems to be the most imported

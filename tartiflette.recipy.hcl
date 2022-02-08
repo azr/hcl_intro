@@ -1,4 +1,5 @@
 
+recipy_version = ">= 1.0.0"
 
 slice "cheese" {
 } // It's totally the reblochon kind 🧀

@@ -25,6 +25,15 @@ func main() {
 	os.Exit(retMain(src, filename))
 }
 
+var recipyVersionSchema = &hcl.BodySchema{
+	Attributes: []hcl.AttributeSchema{
+		{
+			Name:     "recipy_version",
+			Required: false,
+		},
+	},
+}
+
 var preparationActionsSchema = &hcl.BodySchema{
 	Blocks: []hcl.BlockHeaderSchema{
 		{Type: "slice", LabelNames: []string{"ingredient"}},
@@ -94,7 +103,20 @@ func retMain(bytes []byte, filename string) int {
 		filename: file,
 	}
 
-	preparationContent, prepRest, diags := file.Body.PartialContent(preparationActionsSchema)
+	versionContent, rest, diags := file.Body.PartialContent(recipyVersionSchema)
+	if diags.HasErrors() {
+		return writeDiags(files, diags)
+	}
+	v, found := versionContent.Attributes["recipy_version"]
+	if found {
+		v, diags := v.Expr.Value(nil)
+		if diags.HasErrors() {
+			return writeDiags(files, diags)
+		}
+		fmt.Printf("expecting recipy version %s\n\n", v.AsString())
+	}
+
+	preparationContent, prepRest, diags := rest.PartialContent(preparationActionsSchema)
 	if diags.HasErrors() {
 		return writeDiags(files, diags)
 	}
@@ -165,20 +187,22 @@ func retMain(bytes []byte, filename string) int {
 			traversals := hcldec.Variables(block.Body, stackSpec)
 			for _, traversal := range traversals {
 				split := traversal.SimpleSplit()
+				// split.RootName() == boiled_potatoes or sliced_cheese
 				stackAddsRequire = append(stackAddsRequire, split.RootName())
 			}
 		}
 	}
 
-	fmt.Printf("To prepare a %s:\n\n", stack.What)
+	fmt.Printf("To prepare a %s:\n", stack.What)
+
 	for i := range stackAddsRequire {
 		action := actions[i]
-		require := stackAddsRequire[i]
-		fmt.Printf("* %s (%v)\n", action, require)
+		fmt.Printf("* %s\n", action)
 	}
+
 	fmt.Printf("\nThen stack in a %s\n\n", stack.In)
 
-	fmt.Println("Then... you have to figure it out")
+	fmt.Printf("tartiflette requires: %v\n\n", stackAddsRequire)
 
 	return 0
 }
